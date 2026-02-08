@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Voucher Generator - Sharjah Media City</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+}
+
+.app-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.app-header {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 30px;
+}
+
+.app-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.app-header p {
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Drop zone */
+.drop-zone {
+  border: 2px dashed #c4b5fd;
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8f9ff;
+}
+
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: #667eea;
+  background: #eef0ff;
+}
+
+.drop-zone-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.drop-zone-text {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.drop-zone-hint {
+  font-size: 13px;
+  color: #999;
+}
+
+.file-input {
+  display: none;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e0d4f7;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #666;
+  font-size: 15px;
+}
+
+/* Data preview */
+.data-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.data-field {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+
+.data-field:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.data-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.data-value {
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Messages */
+.msg-success {
+  background: #eeffee;
+  color: #22aa77;
+  border: 1px solid #bbeecc;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.msg-error {
+  background: #ffeeee;
+  color: #cc3333;
+  border: 1px solid #ffcccc;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #555;
+  margin-top: 10px;
+}
+
+.btn-secondary:hover {
+  background: #e4e4e4;
+}
+
+.btn-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-row .btn {
+  flex: 1;
+}
+
+/* Footer */
+.app-footer {
+  text-align: center;
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+<script type="text/babel">
+const { useState, useRef, useCallback } = React;
+
+// ── Config ──────────────────────────────────────────
+const CONFIG = {
+  company: 'Sharjah Media City (FZA)',
+  address: 'P.O. Box 839 SHJ, Al Dhaid Road',
+  address2: 'Towee Almessanned',
+  city: 'Sharjah Sharjah',
+  country: 'United Arab Emirates',
+  trn: '100223550300003',
+  bankName: 'Sharjah Islamic Bank (SIB)',
+  acctNo: '1200948300',
+  paymentMode: 'Cheque',
+  preparedBy: 'Saeed Al Fayed',
+  reviewedBy: 'Mariam Alhaddad',
+  approvedBy1: 'Ahmed Alnoman',
+  approvedBy2: 'Director General',
+};
+
+// ── Helpers ─────────────────────────────────────────
+function formatDateDDMMMYY(date) {
+  const d = date || new Date();
+  const day = String(d.getDate()).padStart(2, '0');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mon = months[d.getMonth()];
+  const yr = String(d.getFullYear()).slice(-2);
+  return `${day}-${mon}-${yr}`;
+}
+
+function formatDateDDMMMYYYY(date) {
+  const d = date || new Date();
+  const day = String(d.getDate()).padStart(2, '0');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mon = months[d.getMonth()];
+  const yr = d.getFullYear();
+  return `${day}-${mon}-${yr}`;
+}
+
+// ── PDF Text Extraction ─────────────────────────────
+async function extractTextFromPDF(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let fullText = '';
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items.map(item => item.str).join(' ');
+    fullText += pageText + ' ';
+  }
+  return fullText;
+}
+
+// ── Data Extraction ─────────────────────────────────
+function extractPaymentData(rawText) {
+  // Normalize whitespace
+  const text = rawText.replace(/\s+/g, ' ').trim();
+  console.log('Normalized text:', text);
+
+  const data = {};
+  const errors = [];
+
+  // Payment Number
+  const payNumMatch = text.match(/Payment#\s*(\d+)/i);
+  if (payNumMatch) {
+    data.paymentNumber = payNumMatch[1];
+  } else {
+    errors.push('Payment Number not found');
+  }
+
+  // Payment Date
+  const payDateMatch = text.match(/Payment Date\s+(\d{2}\s+\w+\s+\d{4})/i);
+  if (payDateMatch) {
+    data.paymentDate = payDateMatch[1];
+  } else {
+    errors.push('Payment Date not found');
+  }
+
+  // Reference Number
+  const refMatch = text.match(/Reference Number\s+(\d+)/i);
+  if (refMatch) {
+    data.referenceNumber = refMatch[1];
+  } else {
+    errors.push('Reference Number not found');
+  }
+
+  // Paid To
+  const paidToMatch = text.match(/Paid To\s+(.+?)(?=\s+Paid Through)/i);
+  if (paidToMatch) {
+    data.paidTo = paidToMatch[1].trim();
+  } else {
+    errors.push('Paid To not found');
+  }
+
+  // Paid Through
+  const paidThroughMatch = text.match(/Paid Through\s+(.+?)(?=\s+Amount Paid In Words)/i);
+  if (paidThroughMatch) {
+    data.paidThrough = paidThroughMatch[1].trim();
+  } else {
+    // Try a simpler pattern
+    const pt2 = text.match(/Paid Through\s+(.+?)(?=\s+Amount)/i);
+    if (pt2) data.paidThrough = pt2[1].trim();
+  }
+
+  // Amount in Words
+  const wordsMatch = text.match(/Amount Paid In Words\s+(.+?)(?=\s+AED[\d,])/i);
+  if (wordsMatch) {
+    data.amountInWords = wordsMatch[1].trim();
+  } else {
+    errors.push('Amount in Words not found');
+  }
+
+  // Amount (after "Amount Paid In Words" section, the AED figure)
+  const amtMatch = text.match(/(?:Amount Paid In Words\s+.+?\s+)?AED\s*([\d,]+\.?\d*)/i);
+  if (amtMatch) {
+    data.amount = amtMatch[1];
+  } else {
+    errors.push('Amount not found');
+  }
+
+  // Payment Description (optional)
+  const descMatch = text.match(/Payment for\s+(.+?)(?=\s+Bill Number|\s+Total\s|$)/i);
+  if (descMatch) {
+    data.description = descMatch[1].trim();
+  } else {
+    data.description = 'Professional Services';
+  }
+
+  return { data, errors };
+}
+
+// ── PDF Generation ──────────────────────────────────
+function generateVoucherPDF(data) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'a4');
+  const pw = 210; // page width
+  const margin = 15;
+  const contentW = pw - margin * 2;
+  let y = margin;
+
+  const now = new Date();
+  const dateStr = formatDateDDMMMYY(now);
+  const dateLong = formatDateDDMMMYYYY(now);
+
+  // ── Logo ──
+  doc.setFillColor(220, 53, 69);
+  doc.rect(margin, y, 30, 30, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text('SHAMS', margin + 15, y + 17, { align: 'center' });
+
+  // ── Company header ──
+  doc.setTextColor(51, 51, 51);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Sharjah Media City - Free Zone Authority', margin + 35, y + 7);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(102, 102, 102);
+  doc.text(CONFIG.address, margin + 35, y + 13);
+  doc.text(CONFIG.address2, margin + 35, y + 18);
+  doc.text(CONFIG.city, margin + 35, y + 23);
+  doc.text(CONFIG.country, margin + 35, y + 28);
+  doc.text('TRN ' + CONFIG.trn, margin + 35, y + 33);
+  y += 42;
+
+  // ── Divider ──
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.3);
+  doc.line(margin, y, pw - margin, y);
+  y += 10;
+
+  // ── Title ──
+  doc.setTextColor(51, 51, 51);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Payment Voucher', pw / 2, y, { align: 'center' });
+  y += 14;
+
+  // ── Voucher meta ──
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  const metaLeft = margin;
+  const metaValX = margin + 45;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Date:', metaLeft, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(dateLong, metaValX, y);
+  y += 7;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Voucher type:', metaLeft, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Automatic', metaValX, y);
+  y += 7;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Ref. No.:', metaLeft, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text('PAY_' + (data.paymentNumber || ''), metaValX, y);
+  y += 7;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Company name:', metaLeft, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(CONFIG.company, metaValX + 10, y);
+  y += 14;
+
+  // ── Payment Information section ──
+  doc.setFillColor(248, 249, 255);
+  doc.rect(margin, y - 4, contentW, 60, 'F');
+  doc.setDrawColor(200, 200, 200);
+  doc.rect(margin, y - 4, contentW, 60, 'S');
+
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(51, 51, 51);
+  doc.text('Payment Information', margin + 5, y + 4);
+  y += 14;
+
+  doc.setFontSize(10);
+  const labelX = margin + 5;
+  const valX = margin + 50;
+
+  // Amount & Currency on same line
+  doc.setFont('helvetica', 'bold');
+  doc.text('Amount:', labelX, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text('AED ' + (data.amount || ''), valX, y);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Currency:', margin + 105, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text('AED', margin + 130, y);
+  y += 7;
+
+  // In words
+  doc.setFont('helvetica', 'bold');
+  doc.text('In words:', labelX, y);
+  doc.setFont('helvetica', 'normal');
+  const wordsText = (data.amountInWords || '') + ' Only.';
+  const wordLines = doc.splitTextToSize(wordsText, contentW - 55);
+  doc.text(wordLines, valX, y);
+  y += wordLines.length * 5 + 2;
+
+  // Mode of payment & Ref
+  doc.setFont('helvetica', 'bold');
+  doc.text('Mode of payment:', labelX, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(CONFIG.paymentMode, valX + 10, y);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Ref. No.:', margin + 105, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.referenceNumber || '', margin + 130, y);
+  y += 7;
+
+  // Bank name
+  doc.setFont('helvetica', 'bold');
+  doc.text('Bank name:', labelX, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(CONFIG.bankName, valX, y);
+  y += 7;
+
+  // Account number
+  doc.setFont('helvetica', 'bold');
+  doc.text('Acct. No.:', labelX, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(CONFIG.acctNo, valX, y);
+  y += 14;
+
+  // ── Payee information ──
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text('Name:', labelX, y);
+  doc.setFont('helvetica', 'normal');
+  const nameLines = doc.splitTextToSize(data.paidTo || '', contentW - 55);
+  doc.text(nameLines, valX, y);
+  y += nameLines.length * 5 + 5;
+
+  doc.setFont('helvetica', 'bold');
+  doc.text('Paid for:', labelX, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.description || 'Professional Services', valX, y);
+  y += 20;
+
+  // ── Approval table ──
+  const tableX = margin;
+  const colW = contentW / 4;
+  const rowH = 22;
+  const headerH = 8;
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Approval Section', margin, y);
+  y += 8;
+
+  // Header row
+  doc.setFillColor(240, 237, 250);
+  doc.rect(tableX, y, contentW, headerH, 'F');
+  doc.setDrawColor(180, 180, 180);
+  doc.rect(tableX, y, contentW, headerH, 'S');
+
+  const headers = ['Prepared By', 'Reviewed By', 'Approved By', 'Approved By'];
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(80, 80, 80);
+  headers.forEach((h, i) => {
+    if (i > 0) doc.line(tableX + colW * i, y, tableX + colW * i, y + headerH + rowH * 2);
+    doc.text(h, tableX + colW * i + colW / 2, y + 5.5, { align: 'center' });
+  });
+  y += headerH;
+
+  // Name row
+  doc.setDrawColor(180, 180, 180);
+  doc.rect(tableX, y, contentW, rowH, 'S');
+  const names = [CONFIG.preparedBy, CONFIG.reviewedBy, CONFIG.approvedBy1, CONFIG.approvedBy2];
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(51, 51, 51);
+  names.forEach((n, i) => {
+    doc.text(n, tableX + colW * i + colW / 2, y + rowH / 2 + 2, { align: 'center' });
+  });
+  y += rowH;
+
+  // Date row
+  doc.rect(tableX, y, contentW, rowH, 'S');
+  doc.setFontSize(8);
+  doc.setTextColor(120, 120, 120);
+  for (let i = 0; i < 4; i++) {
+    doc.text(dateLong, tableX + colW * i + colW / 2, y + rowH / 2 + 2, { align: 'center' });
+  }
+  y += rowH;
+
+  // Signature row (blank for manual signatures)
+  doc.rect(tableX, y, contentW, rowH + 5, 'S');
+  doc.setFontSize(7);
+  doc.setTextColor(170, 170, 170);
+  for (let i = 0; i < 4; i++) {
+    if (i > 0) doc.line(tableX + colW * i, y, tableX + colW * i, y + rowH + 5);
+    doc.text('Signature', tableX + colW * i + colW / 2, y + rowH + 2, { align: 'center' });
+  }
+
+  // Save
+  const filename = `Payment_Voucher_${data.paymentNumber || 'UNKNOWN'}_${dateStr}.pdf`;
+  doc.save(filename);
+  return filename;
+}
+
+// ── App Component ───────────────────────────────────
+function App() {
+  const [state, setState] = useState('idle'); // idle | loading | preview | error | success
+  const [paymentData, setPaymentData] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const processFile = useCallback(async (file) => {
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      setErrorMsg('Please upload a PDF file.');
+      setState('error');
+      return;
+    }
+
+    setState('loading');
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    try {
+      const rawText = await extractTextFromPDF(file);
+      console.log('Raw extracted text:', rawText);
+
+      const { data, errors } = extractPaymentData(rawText);
+      console.log('Extracted data:', data);
+      console.log('Extraction errors:', errors);
+
+      if (errors.length > 0 && !data.paymentNumber && !data.amount) {
+        setErrorMsg('Could not extract payment data from this PDF. Errors:\n' + errors.join(', '));
+        setState('error');
+        return;
+      }
+
+      if (errors.length > 0) {
+        console.warn('Some fields could not be extracted:', errors);
+      }
+
+      setPaymentData(data);
+      setState('preview');
+    } catch (err) {
+      console.error('PDF processing error:', err);
+      setErrorMsg('Failed to process the PDF file. Please make sure it is a valid Zoho Books payment PDF.');
+      setState('error');
+    }
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    processFile(file);
+  }, [processFile]);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOver(false);
+  }, []);
+
+  const handleFileSelect = useCallback((e) => {
+    const file = e.target.files[0];
+    processFile(file);
+  }, [processFile]);
+
+  const handleGenerate = useCallback(() => {
+    if (!paymentData) return;
+    try {
+      const filename = generateVoucherPDF(paymentData);
+      setSuccessMsg(`Voucher generated and downloaded: ${filename}`);
+      setState('success');
+    } catch (err) {
+      console.error('PDF generation error:', err);
+      setErrorMsg('Failed to generate the voucher PDF. Please try again.');
+      setState('error');
+    }
+  }, [paymentData]);
+
+  const handleReset = useCallback(() => {
+    setState('idle');
+    setPaymentData(null);
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, []);
+
+  return (
+    <div className="app-container">
+      <div className="app-header">
+        <h1>Payment Voucher Generator</h1>
+        <p>Convert Zoho Books payment PDFs into Sharjah Media City payment vouchers</p>
+      </div>
+
+      {/* Error message */}
+      {state === 'error' && (
+        <div className="msg-error">
+          {errorMsg}
+          <div style={{ marginTop: 10 }}>
+            <button className="btn btn-secondary" onClick={handleReset} style={{ width: 'auto', padding: '8px 20px' }}>
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Success message */}
+      {state === 'success' && (
+        <div className="card">
+          <div className="msg-success" style={{ marginBottom: 16 }}>
+            {successMsg}
+          </div>
+          <div className="btn-row">
+            <button className="btn btn-primary" onClick={() => { generateVoucherPDF(paymentData); }}>
+              Download Again
+            </button>
+            <button className="btn btn-secondary" onClick={handleReset}>
+              Process Another PDF
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Upload zone */}
+      {state === 'idle' && (
+        <div className="card">
+          <div
+            className={`drop-zone ${dragOver ? 'drag-over' : ''}`}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <span className="drop-zone-icon">&#128196;</span>
+            <div className="drop-zone-text">Drag & drop a Zoho Books payment PDF here</div>
+            <div className="drop-zone-hint">or click to browse files</div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              className="file-input"
+              onChange={handleFileSelect}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Loading */}
+      {state === 'loading' && (
+        <div className="card">
+          <div className="loading">
+            <div className="spinner"></div>
+            <div className="loading-text">Extracting payment data from PDF...</div>
+          </div>
+        </div>
+      )}
+
+      {/* Data preview */}
+      {state === 'preview' && paymentData && (
+        <div className="card">
+          <div className="card-title">Extracted Payment Data</div>
+          <div className="data-grid">
+            <div className="data-field">
+              <div className="data-label">Payment Number</div>
+              <div className="data-value">{paymentData.paymentNumber || '—'}</div>
+            </div>
+            <div className="data-field">
+              <div className="data-label">Payment Date</div>
+              <div className="data-value">{paymentData.paymentDate || '—'}</div>
+            </div>
+            <div className="data-field">
+              <div className="data-label">Reference Number</div>
+              <div className="data-value">{paymentData.referenceNumber || '—'}</div>
+            </div>
+            <div className="data-field">
+              <div className="data-label">Paid To</div>
+              <div className="data-value">{paymentData.paidTo || '—'}</div>
+            </div>
+            <div className="data-field">
+              <div className="data-label">Amount (AED)</div>
+              <div className="data-value">AED {paymentData.amount || '—'}</div>
+            </div>
+            <div className="data-field">
+              <div className="data-label">Amount in Words</div>
+              <div className="data-value">{paymentData.amountInWords || '—'}</div>
+            </div>
+            <div className="data-field">
+              <div className="data-label">Paid Through</div>
+              <div className="data-value">{paymentData.paidThrough || '—'}</div>
+            </div>
+            <div className="data-field">
+              <div className="data-label">Description / Paid For</div>
+              <div className="data-value">{paymentData.description || 'Professional Services'}</div>
+            </div>
+          </div>
+          <div className="btn-row">
+            <button className="btn btn-primary" onClick={handleGenerate}>
+              Generate Voucher PDF
+            </button>
+            <button className="btn btn-secondary" onClick={handleReset}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="app-footer">
+        All processing is done locally in your browser. No data is uploaded or stored.
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
