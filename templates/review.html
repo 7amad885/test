@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Payment Data</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Sharjah Media City" class="logo">
+            <h1>Payment Voucher Generator</h1>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('generate') }}" method="POST">
+            <!-- Payment Details -->
+            <div class="review-card">
+                <h2>Payment Details</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Payment #</label>
+                        <input type="text" name="payment_number" value="{{ data.payment_number }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Date</label>
+                        <input type="text" name="payment_date" value="{{ data.payment_date }}" placeholder="e.g. 06 Nov 2025" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Reference Number</label>
+                        <input type="text" name="reference_number" value="{{ data.reference_number }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Currency</label>
+                        <input type="text" name="currency" value="{{ data.currency or 'AED' }}">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Paid To</label>
+                        <input type="text" name="paid_to" value="{{ data.paid_to }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="text" name="amount" value="{{ data.amount }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Paid Through</label>
+                        <input type="text" name="paid_through" value="{{ data.paid_through }}">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Amount in Words</label>
+                        <input type="text" name="amount_in_words" value="{{ data.amount_in_words }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Voucher Fields -->
+            <div class="review-card">
+                <h2>Voucher Details</h2>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Paid For (Description)</label>
+                        <textarea name="paid_for" rows="2" placeholder="e.g. Social Media Retainer (Media Production) for September & October 2025">{% if data.bills %}{% for b in data.bills %}{{ b.bill_number }} - {{ b.bill_date }} ({{ b.bill_amount }}){% if not loop.last %}, {% endif %}{% endfor %}{% endif %}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Bank Account Number</label>
+                        <input type="text" name="account_number" value="12009483001">
+                    </div>
+                    <div class="form-group">
+                        <label>Payee Account Number</label>
+                        <input type="text" name="payee_account" value="-" placeholder="Payee account or -">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signatures -->
+            <div class="review-card">
+                <h2>Signatures</h2>
+                <div class="sig-grid">
+                    <div class="sig-group">
+                        <h4>Prepared By</h4>
+                        <input type="text" name="sig_name_0" placeholder="Name">
+                        <input type="text" name="sig_date_0" placeholder="Date">
+                    </div>
+                    <div class="sig-group">
+                        <h4>Reviewed By</h4>
+                        <input type="text" name="sig_name_1" placeholder="Name">
+                        <input type="text" name="sig_date_1" placeholder="Date">
+                    </div>
+                    <div class="sig-group">
+                        <h4>Approved By</h4>
+                        <input type="text" name="sig_name_2" placeholder="Name">
+                        <input type="text" name="sig_date_2" placeholder="Date">
+                    </div>
+                    <div class="sig-group">
+                        <h4>Director General</h4>
+                        <input type="text" name="sig_name_3" placeholder="Name">
+                        <input type="text" name="sig_date_3" placeholder="Date">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions" style="margin-bottom: 40px;">
+                <button type="submit" class="btn btn-primary">Generate Payment Voucher PDF</button>
+                <a href="{{ url_for('index') }}" class="btn btn-outline">Upload Another</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

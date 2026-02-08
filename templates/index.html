@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Voucher Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Sharjah Media City" class="logo">
+            <h1>Payment Voucher Generator</h1>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="upload-card">
+            <h2>Upload Zoho Books Payment PDF</h2>
+            <p>Upload the system-generated payment PDF from Zoho Books. The details will be extracted automatically.</p>
+
+            <form id="uploadForm" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+                <div class="drop-zone" id="dropZone">
+                    <div class="icon">&#128196;</div>
+                    <p>Drag & drop your PDF here, or click to browse</p>
+                    <div class="filename" id="fileName" style="display:none;"></div>
+                    <input type="file" name="file" id="fileInput" class="file-input" accept=".pdf">
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary" id="uploadBtn" disabled>
+                        Upload & Extract Data
+                    </button>
+                    <a href="{{ url_for('manual') }}" class="btn btn-outline">Manual Entry</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileName = document.getElementById('fileName');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                fileInput.files = files;
+                showFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                showFile(fileInput.files[0]);
+            }
+        });
+
+        function showFile(file) {
+            fileName.textContent = file.name;
+            fileName.style.display = 'block';
+            uploadBtn.disabled = false;
+        }
+    </script>
+</body>
+</html>

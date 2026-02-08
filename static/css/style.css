@@ -1,0 +1,291 @@
+/* Payment Voucher App Styles */
+:root {
+    --red: #C8102E;
+    --dark-gray: #333333;
+    --light-gray: #f5f5f5;
+    --border: #ddd;
+    --white: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--light-gray);
+    color: var(--dark-gray);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--white);
+    padding: 20px 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-bottom: 3px solid var(--red);
+}
+
+.header .logo {
+    height: 50px;
+}
+
+.header h1 {
+    font-size: 22px;
+    color: var(--dark-gray);
+}
+
+/* Flash messages */
+.flash {
+    padding: 12px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+.flash.error {
+    background: #fdecea;
+    color: #b71c1c;
+    border: 1px solid #f5c6cb;
+}
+.flash.success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+/* Upload Card */
+.upload-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.upload-card h2 {
+    margin-bottom: 10px;
+    color: var(--dark-gray);
+}
+
+.upload-card p {
+    color: #777;
+    margin-bottom: 30px;
+}
+
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 50px 30px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--light-gray);
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+    border-color: var(--red);
+    background: #fef0f0;
+}
+
+.drop-zone .icon {
+    font-size: 48px;
+    color: var(--red);
+    margin-bottom: 15px;
+}
+
+.drop-zone p {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.drop-zone .filename {
+    margin-top: 10px;
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+.file-input {
+    display: none;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--red);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background: #a00d24;
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: var(--dark-gray);
+    color: var(--white);
+}
+
+.btn-secondary:hover {
+    background: #1a1a1a;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--red);
+    border: 2px solid var(--red);
+}
+
+.btn-outline:hover {
+    background: var(--red);
+    color: var(--white);
+}
+
+.actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Review Form */
+.review-card {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+.review-card h2 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--red);
+    color: var(--dark-gray);
+    font-size: 18px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--dark-gray);
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px rgba(200, 16, 46, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Signature section */
+.sig-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.sig-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sig-group h4 {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+    padding: 6px;
+    background: var(--light-gray);
+    border-radius: 4px;
+}
+
+.sig-group input {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+    text-align: center;
+}
+
+.sig-group input:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .sig-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
