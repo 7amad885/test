@@ -1,0 +1,14 @@
+# Render Blueprint: Render → New → Blueprint → this repo, branch "paradox-point".
+# HTTPS + WSS are automatic. Rooms live in memory: keep a single instance.
+services:
+  - type: web
+    name: paradox-point
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free # "starter" stays awake; free sleeps after ~15 min idle (first visit then takes ~1 min)
+    healthCheckPath: /healthz
+    numInstances: 1
+    envVars:
+      - key: PORT
+        value: "8080"

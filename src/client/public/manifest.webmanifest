@@ -1,0 +1,11 @@
+{
+  "name": "Paradox Point",
+  "short_name": "Paradox Point",
+  "description": "Online 1v1 time-loop FPS",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#05080d",
+  "theme_color": "#05080d",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

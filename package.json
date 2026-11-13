@@ -1,0 +1,50 @@
+{
+  "name": "paradox-point",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Paradox Point — a mobile-first online 1v1 time-loop FPS (Three.js / React Three Fiber + Colyseus)",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:server": "tsx watch src/server/index.ts",
+    "dev:client": "vite",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build",
+    "build:server": "esbuild src/server/index.ts --bundle --platform=node --format=esm --target=node20 --packages=external --outfile=dist/server/index.js",
+    "start": "node dist/server/index.js",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:e2e": "node tests/e2e/protocol.mjs && node tests/e2e/two-players.mjs"
+  },
+  "dependencies": {
+    "@colyseus/core": "^0.16.26",
+    "@colyseus/schema": "3.0",
+    "@colyseus/ws-transport": "^0.16.5",
+    "express": "^4.22.3"
+  },
+  "devDependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "@react-three/postprocessing": "^3.2.2",
+    "@types/express": "^4.17.25",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.180.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "colyseus.js": "^0.16.22",
+    "esbuild": "^0.28.2",
+    "postprocessing": "^6.39.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "three": "^0.180.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0",
+    "zustand": "^5.1.0"
+  }
+}
